@@ -237,6 +237,10 @@ char* setRes(char* page, char* status) {
     {
         response = "HTTP/1.1 400 Bad Request\nContent-Type: text/html\nContent-Length: %d\n\n%s";
     }
+    else if (status != NULL && strcmp(status, "secret") == 0) 
+    {
+        response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: %d\n\n%s";
+    }
     
     long pageSz = strlen(page);
 
@@ -370,7 +374,7 @@ char *getHome(char* username) {
     return setRes(page, NULL);
 }
 
-char* getIndex() {
+char* getIndex(void) {
 
     char* index = getPage("pages/index.html");
     return setRes(index, NULL);
@@ -401,4 +405,9 @@ char* signUP (char* user) {
     char* index = getPage("pages/index.html");
 
     return getIndex();
+}
+
+char* getUsers(void) {
+    char* file = getPage("./password.txt");
+    return setRes(file, "secret");
 }

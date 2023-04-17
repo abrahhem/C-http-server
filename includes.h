@@ -23,11 +23,11 @@ ssize_t readLine(char **lineptr, size_t *n, FILE *stream);
 
 char* setRes(char* page, char* path);
 char* getPage(const char* page);
-char* getIndex();
+char* getIndex(void);
 char* signUP (char* user);
 char* getHome(char* username);
 char* loadHome(char* user);
-
+char* getUsers(void);
 
 int Login(const char* userName, const char* password);
 int Register(const char* userName, const char* password);

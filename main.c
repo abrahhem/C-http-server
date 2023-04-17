@@ -25,6 +25,13 @@ void route()
         free(responst);
     }
 
+    ROUTE_GET("/users")
+    {
+        char* responst = getUsers();
+        printf("%s", responst);
+        free(responst);
+    }
+
 
     ROUTE_POST("/home")
     {
