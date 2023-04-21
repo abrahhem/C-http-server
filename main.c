@@ -35,7 +35,7 @@ void route()
 
     ROUTE_POST("/home")
     {
-        char *page = loadHome(payload);
+        char *page = signIn(payload);
         printf("%s",  page);
         free(page);
     }

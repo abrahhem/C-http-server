@@ -26,7 +26,7 @@ char* getPage(const char* page);
 char* getIndex(void);
 char* signUP (char* user);
 char* getHome(char* username);
-char* loadHome(char* user);
+char* signIn(char* user);
 char* getUsers(void);
 
 int Login(const char* userName, const char* password);

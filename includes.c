@@ -7,7 +7,15 @@
 
 #include "includes.h"
 
+#define MaxLenght 9
+
+
 char* nane = "";
+
+void strcopy(char* dest , const char* src){
+    while(*src)
+        memset(dest++,  *src++, sizeof(char));
+}
 
 void replce(char* str, char c, char rep) {
     long sz = strlen(str);
@@ -62,20 +70,22 @@ char* setData(char* username, char* data) {
     FILE * fTemp;
 
     int flag = 0;
-
     char* buffer = NULL, *token, *temp;
     char  newline[buffSize], dilmeter[] = "-";
     
-
     /* Remove extra new line character from stdin */
     //fflush(stdin);
 
+    if (Login(username, "notpassword") == 0)
+        return getHome(username);
+    
     fPtr  = fopen("data.txt", "r");
     fTemp = fopen("tmpData.txt", "a"); 
 
     if (fPtr == NULL || fTemp == NULL) 
         return getHome(username);
     
+
 
     size_t sz;
     while (readLine(&buffer, &sz, fPtr) != -1) {
@@ -108,41 +118,44 @@ char* setData(char* username, char* data) {
 }
 
 int Login(const char* userName, const char* password) {
-    
+
     if(userName == NULL || password == NULL)
         return -1;
-    
+
+    // MaxLenght = 8
+    int status = 0;
+    char buffName[MaxLenght] = {'\0'};
     char dilmeter[] = "-", *buffer = NULL;
     char *token;
     
     FILE* users = fopen(usersFilePath, "r");
     
     if(users == NULL) {
-          perror("Error opening file");
-          return -1;
+        perror("Error opening file");
+        return -1;
+
     }
-    
+
+    fprintf(stderr, "name: %s\nstatus: %d\n", buffName, status);
+
+    strcopy(buffName, userName); 
+
+    fprintf(stderr, "name: %s\nstatus: %d\n", buffName, status);
+
     size_t sz;
     while (readLine(&buffer, &sz, users) != -1) {
         token = strtok(buffer, dilmeter);
         if(strcmp(token, userName) == 0) {
             token = strtok(NULL, dilmeter);
-            if(strcmp(token, password) == 0) {
-                free(buffer);
-                fclose(users);
-                return 1;
-            }
-            else {
-                free(buffer);
-                fclose(users);
-                return -2;
-            }
-               
+            if(strcmp(token, password) == 0) 
+                status = 1;
+            else 
+                status = -2;
         }
     }
     free(buffer);
     fclose(users);
-    return 0;
+    return status;
 }
 
 
@@ -190,7 +203,6 @@ ssize_t readLine(char **lineptr, size_t *n, FILE *stream) {
     return i;
     
 }
-
 
 char* getPage(const char* page) {
 
@@ -318,36 +330,33 @@ char* replaceSubString(char* str, char* substr, char* replace) {
 }
 
 
-char* loadHome(char* user) {
+char* signIn(char* user) {
 
     if(user == NULL)
         return NULL;
     
-    char* token = strtok(user, "&"), *username, *second;
+    char* token = strtok(user, "&"), *username, *pass;
     char* nameParam = token, *secondParam = strtok(NULL, "&");
     int flag = 0;
 
     username = strtok(nameParam, "=");
     username = strtok(NULL, "=");
 
-    second = strtok(secondParam, "=");
-    if (strcmp(second, "data") == 0)
+    pass = strtok(secondParam, "=");
+    if (strcmp(pass, "data") == 0)
         flag++;
     
-    second = strtok(NULL, "=");
+    pass = strtok(NULL, "=");
     
-    replce(second, '+', ' ');
+    replce(pass, '+', ' ');
 
     if(flag) 
-        return setData(username, second);
+        return setData(username, pass);
     
-    int res = Login(username, second);
-    
-    char* page;
 
-    if (res == 1) 
-        return getHome(username);
+    int res = Login(username, pass);
     
+    char* page;    
 
     if (res == -2) {
         page = getPage("pages/user400.html");
@@ -355,8 +364,11 @@ char* loadHome(char* user) {
         return setRes(page, "400");
     }
 
-    page = getPage("pages/user404.html");
-    return setRes(page, "404");
+    if (res == 0) {
+        page = getPage("pages/user404.html");
+        return setRes(page, "404");
+    }
+    return getHome(username);
 }
 
 char *getHome(char* username) {
@@ -375,7 +387,6 @@ char *getHome(char* username) {
 }
 
 char* getIndex(void) {
-
     char* index = getPage("pages/index.html");
     return setRes(index, NULL);
 }
@@ -385,10 +396,11 @@ char* signUP (char* user) {
     if(user == NULL)
         return NULL;
     
-    char* token, *nameParam = strtok(user, "&"), *passParam = strtok(NULL, "&"), *username, *pass;
+    char* token, *nameParam = strtok(user, "&"), *passParam = strtok(NULL, "&"), *username, *pass, *nameBuff;
 
-    username = strtok(nameParam, "=");
-    username = strtok(NULL, "=");
+    nameBuff = strtok(nameParam, "=");
+    nameBuff = strtok(NULL, "=");
+    strncpy(username, nameBuff, MaxLenght - 1);
     pass =  strtok(passParam, "=");
     pass =  strtok(NULL, "=");
     replce(pass, '+', ' ');

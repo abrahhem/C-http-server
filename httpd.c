@@ -180,7 +180,7 @@ void respond(int n)
 
 	    payload = buf+ rcvd-payload_size;
         if (payload_size <100)
-            fprintf(stderr, "[H] %d %s:\n", payload_size  ,payload );
+            fprintf(stderr, "[H] %d %s:\n", payload_size  ,payload);
 
         // bind clientfd to stdout, making it easier to write
         clientfd = clients[n];
